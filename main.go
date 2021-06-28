@@ -30,5 +30,7 @@ func ExecuteProgram(contents []byte) {
 		fmt.Println(err)
 		return
 	}
-	program.ExecuteProgram()
+	res := program.ExecuteProgram()
+
+	fmt.Print(res)
 }
