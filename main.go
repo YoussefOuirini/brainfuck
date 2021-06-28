@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/youssefouirini/brainfuck/cmd"
+	"github.com/youssefouirini/brainfuck/model"
 )
 
 func main() {
@@ -14,7 +15,7 @@ func main() {
 		return
 	}
 
-	result, err := cmd.ExecuteBf([]byte(args[1]))
+	result, err := cmd.ExecuteBf(model.Brainfuck{Contents: []byte(args[1])})
 	if err != nil {
 		fmt.Printf("Error executing program %s\n", err)
 	}
