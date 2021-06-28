@@ -47,8 +47,6 @@ func CompileBf(input string) (program []Instruction, err error) {
 		}
 
 		program = append(program, *instruction)
-
-		programCounter++
 	}
 	if len(jumpStack) != 0 {
 		return nil, errors.New("Compilation error.")
