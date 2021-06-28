@@ -31,7 +31,7 @@ func CompileBf(input string) ([]Instruction, error) {
 	counter := &Counter{}
 	counter.jumpStack = make([]uint16, 0)
 	for _, char := range input {
-		compileProgram(counter, char)
+		compileProgram(char, counter)
 	}
 	if len(counter.jumpStack) != 0 {
 		return nil, errors.New("Compilation error.")
@@ -39,7 +39,7 @@ func CompileBf(input string) ([]Instruction, error) {
 	return counter.program, nil
 }
 
-func compileProgram(counter *Counter, char rune) error {
+func compileProgram(char rune, counter *Counter) error {
 	switch char {
 	case '>':
 		counter.program = append(counter.program, Instruction{increasePointer, 0})
