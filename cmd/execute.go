@@ -9,9 +9,7 @@ const dataSize int = 65535
 
 type Program []Instruction
 
-type DataPointer uint16
-
-func (p Program) ExecuteProgram() string {
+func (p Program) Execute() string {
 	data := make([]int16, dataSize)
 	var dataPointer DataPointer = 0
 
@@ -50,4 +48,14 @@ func (p Program) ExecuteProgram() string {
 	}
 
 	return string(result)
+}
+
+type DataPointer uint16
+
+func ExecuteBf(contents []byte) (string, error) {
+	program, err := CompileBf(string(contents))
+	if err != nil {
+		return "", err
+	}
+	return program.Execute(), nil
 }

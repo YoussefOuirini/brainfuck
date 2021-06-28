@@ -21,16 +21,10 @@ func main() {
 		return
 	}
 
-	ExecuteProgram(fileContents)
-}
-
-func ExecuteProgram(contents []byte) {
-	program, err := cmd.CompileBf(string(contents))
+	result, err := cmd.ExecuteBf(fileContents)
 	if err != nil {
-		fmt.Println(err)
-		return
+		fmt.Printf("Error executing program %s\n", err)
 	}
-	res := program.ExecuteProgram()
 
-	fmt.Print(res)
+	fmt.Print(result)
 }
