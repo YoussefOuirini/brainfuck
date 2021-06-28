@@ -59,4 +59,76 @@ func Test_CompileProgram(t *testing.T) {
 		assert.Equal(t, uint16(1), testCounter.Program[0].Operand)
 		assert.Equal(t, uint16(2), testCounter.Pointer)
 	})
+
+	t.Run("operation is IncreasePointer", func(t *testing.T) {
+		testChar := model.Char('>')
+		testCounter := &model.Counter{
+			Pointer:     uint16(1),
+			JumpPointer: uint16(0),
+			JumpStack:   []uint16{1},
+		}
+		err := cmd.CompileProgram(testChar, testCounter)
+		assert.NoError(t, err)
+		assert.Equal(t, model.Instruction{Operator: model.IncreasePointer, Operand: 0}, testCounter.Program[0])
+	})
+
+	t.Run("operation is DecreasePointer", func(t *testing.T) {
+		testChar := model.Char('<')
+		testCounter := &model.Counter{
+			Pointer:     uint16(1),
+			JumpPointer: uint16(0),
+			JumpStack:   []uint16{1},
+		}
+		err := cmd.CompileProgram(testChar, testCounter)
+		assert.NoError(t, err)
+		assert.Equal(t, model.Instruction{Operator: model.DecreasePointer, Operand: 0}, testCounter.Program[0])
+	})
+
+	t.Run("operation is IncreaseValue", func(t *testing.T) {
+		testChar := model.Char('+')
+		testCounter := &model.Counter{
+			Pointer:     uint16(1),
+			JumpPointer: uint16(0),
+			JumpStack:   []uint16{1},
+		}
+		err := cmd.CompileProgram(testChar, testCounter)
+		assert.NoError(t, err)
+		assert.Equal(t, model.Instruction{Operator: model.IncreaseValue, Operand: 0}, testCounter.Program[0])
+	})
+
+	t.Run("operation is DecreaseValue", func(t *testing.T) {
+		testChar := model.Char('-')
+		testCounter := &model.Counter{
+			Pointer:     uint16(1),
+			JumpPointer: uint16(0),
+			JumpStack:   []uint16{1},
+		}
+		err := cmd.CompileProgram(testChar, testCounter)
+		assert.NoError(t, err)
+		assert.Equal(t, model.Instruction{Operator: model.DecreaseValue, Operand: 0}, testCounter.Program[0])
+	})
+
+	t.Run("operation is Out", func(t *testing.T) {
+		testChar := model.Char('.')
+		testCounter := &model.Counter{
+			Pointer:     uint16(1),
+			JumpPointer: uint16(0),
+			JumpStack:   []uint16{1},
+		}
+		err := cmd.CompileProgram(testChar, testCounter)
+		assert.NoError(t, err)
+		assert.Equal(t, model.Instruction{Operator: model.Out, Operand: 0}, testCounter.Program[0])
+	})
+
+	t.Run("operation is In", func(t *testing.T) {
+		testChar := model.Char(',')
+		testCounter := &model.Counter{
+			Pointer:     uint16(1),
+			JumpPointer: uint16(0),
+			JumpStack:   []uint16{1},
+		}
+		err := cmd.CompileProgram(testChar, testCounter)
+		assert.NoError(t, err)
+		assert.Equal(t, model.Instruction{Operator: model.In, Operand: 0}, testCounter.Program[0])
+	})
 }
