@@ -14,4 +14,11 @@ func Test_ExecuteBf(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, "Hello World!\n", result)
 	})
+
+	t.Run("666", func(t *testing.T) {
+		testContent := []byte(">+++++++++[<++++++>-]<...>++++++++++.")
+		result, err := cmd.ExecuteBf(testContent)
+		assert.NoError(t, err)
+		assert.Equal(t, "666\n", result)
+	})
 }
