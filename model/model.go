@@ -48,10 +48,8 @@ func (c Char) GetOperation() *uint16 {
 		operation = JumpForward
 	case ']':
 		operation = JumpBackward
-	}
-
-	if operation == uint16(0) {
-		return nil
+	default:
+		operation = Unknown
 	}
 
 	return &operation

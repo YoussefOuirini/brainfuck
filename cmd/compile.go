@@ -23,7 +23,7 @@ func CompileProgram(char model.Char, counter *model.Counter) error {
 
 	var operand uint16
 
-	if operation == nil {
+	if *operation == model.Unknown {
 		counter.Pointer--
 	}
 
