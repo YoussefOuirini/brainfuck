@@ -1,10 +1,18 @@
 package cmd
 
-import "errors"
+import (
+	"errors"
+)
 
 type Instruction struct {
 	operator uint16
 	operand  uint16
+}
+
+type Counter struct {
+	program uint16
+	jump    uint16
+	stack   []uint16
 }
 
 const (
@@ -19,46 +27,51 @@ const (
 )
 
 func CompileBf(input string) (program []Instruction, err error) {
-	var programCounter, jumpProgramCounter uint16 = 0, 0
-	jumpStack := make([]uint16, 0)
+	var counter Counter
+	counter.stack = make([]uint16, 0)
 	for _, char := range input {
-		err = compileProgram(programCounter, jumpProgramCounter, char, jumpStack, program)
+		instruction, err := compileProgram(&counter, char)
 		if err != nil {
 			return nil, err
 		}
+
+		if instruction != nil {
+			program = append(program, *instruction)
+		}
+
+		if instruction.operator == jumpBackward {
+			program[counter.jump].operand = counter.jump
+		}
 	}
-	if len(jumpStack) != 0 {
+	if len(counter.stack) != 0 {
 		return nil, errors.New("Compilation error.")
 	}
 	return
 }
 
-func compileProgram(programCounter, jumpProgramCounter uint16, char rune, jumpStack []uint16, program []Instruction) error {
+func compileProgram(counter *Counter, char rune) (*Instruction, error) {
 	instruction := compileChar(char)
-	programCounter++
+	counter.program++
 
 	if instruction == nil {
-		programCounter--
+		counter.jump--
 	}
 
 	if instruction.operator == jumpForward {
-		jumpStack = append(jumpStack, programCounter)
+		counter.stack = append(counter.stack, counter.program)
 	}
 
 	if instruction.operator == jumpBackward {
-		if len(jumpStack) == 0 {
-			return errors.New("compilation error due to jumpStack being 0")
+		if len(counter.stack) == 0 {
+			return nil, errors.New("compilation error due to jumpStack being 0")
 		}
 
-		jumpProgramCounter = jumpStack[len(jumpStack)-1]
-		jumpStack = jumpStack[:len(jumpStack)-1]
-		instruction.operand = jumpProgramCounter
-		program[jumpProgramCounter].operand = programCounter
+		counter.jump = counter.stack[len(counter.stack)-1]
+		counter.stack = counter.stack[:len(counter.stack)-1]
+		instruction.operand = counter.jump
 	}
 
-	program = append(program, *instruction)
-
-	return nil
+	return instruction, nil
 }
 
 func compileChar(char rune) *Instruction {
