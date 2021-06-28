@@ -2,96 +2,48 @@ package cmd
 
 import (
 	"errors"
+
+	"github.com/youssefouirini/brainfuck/model"
 )
 
-type Instruction struct {
-	operator uint16
-	operand  uint16
-}
-
-type Counter struct {
-	pointer     uint16
-	jumpPointer uint16
-	jumpStack   []uint16
-	program     Program
-}
-
-type Char rune
-
-func (c Char) GetOperation() *uint16 {
-	var operation uint16
-
-	switch c {
-	case '>':
-		operation = increasePointer
-	case '<':
-		operation = decreasePointer
-	case '+':
-		operation = increaseValue
-	case '-':
-		operation = decreaseValue
-	case '.':
-		operation = out
-	case ',':
-		operation = in
-	case '[':
-		operation = jumpForward
-	case ']':
-		operation = jumpBackward
-	}
-
-	return &operation
-}
-
-const (
-	increasePointer = iota
-	decreasePointer
-	increaseValue
-	decreaseValue
-	out
-	in
-	jumpForward
-	jumpBackward
-)
-
-func CompileBf(input string) (Program, error) {
-	counter := &Counter{}
-	counter.jumpStack = make([]uint16, 0)
+func CompileBf(input string) (model.Program, error) {
+	counter := &model.Counter{}
+	counter.JumpStack = make([]uint16, 0)
 	for _, char := range input {
-		compileProgram(Char(char), counter)
+		compileProgram(model.Char(char), counter)
 	}
-	if len(counter.jumpStack) != 0 {
+	if len(counter.JumpStack) != 0 {
 		return nil, errors.New("compilation error: jumpStack is not 0")
 	}
-	return counter.program, nil
+	return counter.Program, nil
 }
 
-func compileProgram(char Char, counter *Counter) error {
+func compileProgram(char model.Char, counter *model.Counter) error {
 	operation := char.GetOperation()
 
 	var operand uint16
 
 	if operation == nil {
-		counter.pointer--
+		counter.Pointer--
 	}
 
-	if *operation == jumpForward {
-		counter.jumpStack = append(counter.jumpStack, counter.pointer)
+	if *operation == model.JumpForward {
+		counter.JumpStack = append(counter.JumpStack, counter.Pointer)
 	}
 
-	if *operation == jumpBackward {
-		if len(counter.jumpStack) == 0 {
+	if *operation == model.JumpBackward {
+		if len(counter.JumpStack) == 0 {
 			return errors.New("compilation error: jumpStack is 0")
 		}
-		counter.jumpPointer = counter.jumpStack[len(counter.jumpStack)-1]
-		counter.jumpStack = counter.jumpStack[:len(counter.jumpStack)-1]
-		counter.program[counter.jumpPointer].operand = counter.pointer
-		operand = counter.jumpPointer
+		counter.JumpPointer = counter.JumpStack[len(counter.JumpStack)-1]
+		counter.JumpStack = counter.JumpStack[:len(counter.JumpStack)-1]
+		counter.Program[counter.JumpPointer].Operand = counter.Pointer
+		operand = counter.JumpPointer
 	}
 
-	counter.program = append(counter.program, Instruction{*operation, operand})
+	counter.Program = append(counter.Program, model.Instruction{Operator: *operation, Operand: operand})
 
-	counter.pointer++
+	counter.Pointer++
 
 	return nil
 }
