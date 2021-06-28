@@ -16,6 +16,33 @@ type Counter struct {
 	program     []Instruction
 }
 
+type Char rune
+
+func (c Char) GetOperation() *uint16 {
+	var operation uint16
+
+	switch c {
+	case '>':
+		operation = increasePointer
+	case '<':
+		operation = decreasePointer
+	case '+':
+		operation = increaseValue
+	case '-':
+		operation = decreaseValue
+	case '.':
+		operation = out
+	case ',':
+		operation = in
+	case '[':
+		operation = jumpForward
+	case ']':
+		operation = jumpBackward
+	}
+
+	return &operation
+}
+
 const (
 	increasePointer = iota
 	decreasePointer
@@ -31,7 +58,7 @@ func CompileBf(input string) ([]Instruction, error) {
 	counter := &Counter{}
 	counter.jumpStack = make([]uint16, 0)
 	for _, char := range input {
-		compileProgram(char, counter)
+		compileProgram(Char(char), counter)
 	}
 	if len(counter.jumpStack) != 0 {
 		return nil, errors.New("Compilation error.")
@@ -39,8 +66,8 @@ func CompileBf(input string) ([]Instruction, error) {
 	return counter.program, nil
 }
 
-func compileProgram(char rune, counter *Counter) error {
-	operation := getOperation(char)
+func compileProgram(char Char, counter *Counter) error {
+	operation := char.GetOperation()
 
 	var operand uint16
 
@@ -67,29 +94,4 @@ func compileProgram(char rune, counter *Counter) error {
 	counter.pointer++
 
 	return nil
-}
-
-func getOperation(char rune) *uint16 {
-	var operation uint16
-
-	switch char {
-	case '>':
-		operation = increasePointer
-	case '<':
-		operation = decreasePointer
-	case '+':
-		operation = increaseValue
-	case '-':
-		operation = decreaseValue
-	case '.':
-		operation = out
-	case ',':
-		operation = in
-	case '[':
-		operation = jumpForward
-	case ']':
-		operation = jumpBackward
-	}
-
-	return &operation
 }
