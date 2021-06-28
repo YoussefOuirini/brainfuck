@@ -8,51 +8,71 @@ type Instruction struct {
 }
 
 const (
-	op_inc_dp = iota
-	op_dec_dp
-	op_inc_val
-	op_dec_val
-	op_out
-	op_in
-	op_jmp_fwd
-	op_jmp_bck
+	increasePointer = iota
+	decreasePointer
+	increaseValue
+	decreaseValue
+	out
+	in
+	jumpForward
+	jumpBackward
 )
 
 func CompileBf(input string) (program []Instruction, err error) {
-	var pc, jmp_pc uint16 = 0, 0
-	jmp_stack := make([]uint16, 0)
-	for _, c := range input {
-		switch c {
-		case '>':
-			program = append(program, Instruction{op_inc_dp, 0})
-		case '<':
-			program = append(program, Instruction{op_dec_dp, 0})
-		case '+':
-			program = append(program, Instruction{op_inc_val, 0})
-		case '-':
-			program = append(program, Instruction{op_dec_val, 0})
-		case '.':
-			program = append(program, Instruction{op_out, 0})
-		case ',':
-			program = append(program, Instruction{op_in, 0})
-		case '[':
-			program = append(program, Instruction{op_jmp_fwd, 0})
-			jmp_stack = append(jmp_stack, pc)
-		case ']':
-			if len(jmp_stack) == 0 {
-				return nil, errors.New("Compilation error.")
+	var programCounter, jumpCounter uint16 = 0, 0
+	jumpStack := make([]uint16, 0)
+	for _, char := range input {
+		instruction := compileChar(char, programCounter, jumpCounter, jumpStack, program)
+		programCounter++
+		if instruction.operator == jumpBackward {
+			if len(jumpStack) == 0 {
+				return nil, errors.New("compilation error due to jumpStack being 0")
 			}
-			jmp_pc = jmp_stack[len(jmp_stack)-1]
-			jmp_stack = jmp_stack[:len(jmp_stack)-1]
-			program = append(program, Instruction{op_jmp_bck, jmp_pc})
-			program[jmp_pc].operand = pc
-		default:
-			pc--
+			jumpStack = append(jumpStack, programCounter)
+			jumpCounter = jumpStack[len(jumpStack)-1]
+			jumpStack = jumpStack[:len(jumpStack)-1]
+			program = append(program, Instruction{jumpBackward, jumpCounter})
+			program[jumpCounter].operand = programCounter
 		}
-		pc++
+
+		program = append(program, *instruction)
 	}
-	if len(jmp_stack) != 0 {
+	if len(jumpStack) != 0 {
 		return nil, errors.New("Compilation error.")
 	}
 	return
+}
+
+func compileChar(char rune, programCounter, jumpCounter uint16, jumpStack []uint16, program []Instruction) *Instruction {
+	var operator uint16
+	switch char {
+	case '>':
+		operator = increasePointer
+	case '<':
+		operator = decreasePointer
+	case '+':
+		operator = increaseValue
+	case '-':
+		operator = decreaseValue
+	case '.':
+		operator = out
+	case ',':
+		operator = in
+	case '[':
+		operator = jumpForward
+	case ']':
+		operator = jumpBackward
+		if len(jumpStack) == 0 {
+			return nil
+		}
+		// jumpStack = append(jumpStack, programCounter)
+		// jumpCounter = jumpStack[len(jumpStack)-1]
+		// jumpStack = jumpStack[:len(jumpStack)-1]
+		// program = append(program, Instruction{jumpBackward, jumpCounter})
+		// program[jumpCounter].operand = programCounter
+	default:
+		programCounter--
+	}
+
+	return &Instruction{operator, 0}
 }
