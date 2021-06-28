@@ -28,4 +28,19 @@ func Test_CompileProgram(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, uint16(1), testCounter.Pointer)
 	})
+
+	t.Run("operation is JumpForward", func(t *testing.T) {
+		testChar := model.Char('[')
+		testCounter := &model.Counter{Pointer: 1}
+		err := cmd.CompileProgram(testChar, testCounter)
+		assert.NoError(t, err)
+		assert.Equal(t, []uint16{1}, testCounter.JumpStack)
+	})
+
+	t.Run("operation is JumpBackward errors", func(t *testing.T) {
+		testChar := model.Char(']')
+		testCounter := &model.Counter{JumpStack: []uint16{}}
+		err := cmd.CompileProgram(testChar, testCounter)
+		assert.EqualError(t, err, "compilation error: jumpStack is 0")
+	})
 }
