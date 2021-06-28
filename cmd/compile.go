@@ -10,7 +10,7 @@ func CompileBf(input string) (model.Program, error) {
 	counter := &model.Counter{}
 	counter.JumpStack = make([]uint16, 0)
 	for _, char := range input {
-		compileProgram(model.Char(char), counter)
+		CompileProgram(model.Char(char), counter)
 	}
 	if len(counter.JumpStack) != 0 {
 		return nil, errors.New("compilation error: jumpStack is not 0")
@@ -18,7 +18,7 @@ func CompileBf(input string) (model.Program, error) {
 	return counter.Program, nil
 }
 
-func compileProgram(char model.Char, counter *model.Counter) error {
+func CompileProgram(char model.Char, counter *model.Counter) error {
 	operation := char.GetOperation()
 
 	var operand uint16
@@ -27,21 +27,23 @@ func compileProgram(char model.Char, counter *model.Counter) error {
 		counter.Pointer--
 	}
 
-	if *operation == model.JumpForward {
-		counter.JumpStack = append(counter.JumpStack, counter.Pointer)
-	}
-
-	if *operation == model.JumpBackward {
-		if len(counter.JumpStack) == 0 {
-			return errors.New("compilation error: jumpStack is 0")
+	if operation != nil {
+		if *operation == model.JumpForward {
+			counter.JumpStack = append(counter.JumpStack, counter.Pointer)
 		}
-		counter.JumpPointer = counter.JumpStack[len(counter.JumpStack)-1]
-		counter.JumpStack = counter.JumpStack[:len(counter.JumpStack)-1]
-		counter.Program[counter.JumpPointer].Operand = counter.Pointer
-		operand = counter.JumpPointer
-	}
 
-	counter.Program = append(counter.Program, model.Instruction{Operator: *operation, Operand: operand})
+		if *operation == model.JumpBackward {
+			if len(counter.JumpStack) == 0 {
+				return errors.New("compilation error: jumpStack is 0")
+			}
+			counter.JumpPointer = counter.JumpStack[len(counter.JumpStack)-1]
+			counter.JumpStack = counter.JumpStack[:len(counter.JumpStack)-1]
+			counter.Program[counter.JumpPointer].Operand = counter.Pointer
+			operand = counter.JumpPointer
+		}
+
+		counter.Program = append(counter.Program, model.Instruction{Operator: *operation, Operand: operand})
+	}
 
 	counter.Pointer++
 

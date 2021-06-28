@@ -8,7 +8,8 @@ import (
 const dataSize int = 65535
 
 const (
-	IncreasePointer = iota
+	Unknown = iota
+	IncreasePointer
 	DecreasePointer
 	IncreaseValue
 	DecreaseValue
@@ -47,6 +48,10 @@ func (c Char) GetOperation() *uint16 {
 		operation = JumpForward
 	case ']':
 		operation = JumpBackward
+	}
+
+	if operation == uint16(0) {
+		return nil
 	}
 
 	return &operation
