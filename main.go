@@ -20,10 +20,15 @@ func main() {
 		fmt.Printf("Error reading %s\n", filename)
 		return
 	}
-	program, err := cmd.CompileBf(string(fileContents))
+
+	ExecuteProgram(fileContents)
+}
+
+func ExecuteProgram(contents []byte) {
+	program, err := cmd.CompileBf(string(contents))
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	cmd.ExecuteBf(program)
+	program.ExecuteProgram()
 }

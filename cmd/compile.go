@@ -13,7 +13,7 @@ type Counter struct {
 	pointer     uint16
 	jumpPointer uint16
 	jumpStack   []uint16
-	program     []Instruction
+	program     Program
 }
 
 type Char rune
@@ -54,7 +54,7 @@ const (
 	jumpBackward
 )
 
-func CompileBf(input string) ([]Instruction, error) {
+func CompileBf(input string) (Program, error) {
 	counter := &Counter{}
 	counter.jumpStack = make([]uint16, 0)
 	for _, char := range input {
