@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 
 	"github.com/youssefouirini/brainfuck/cmd"
@@ -14,14 +13,8 @@ func main() {
 		fmt.Printf("Usage: %s filename\n", args[0])
 		return
 	}
-	filename := args[1]
-	fileContents, err := ioutil.ReadFile(filename)
-	if err != nil {
-		fmt.Printf("Error reading %s\n", filename)
-		return
-	}
 
-	result, err := cmd.ExecuteBf(fileContents)
+	result, err := cmd.ExecuteBf([]byte(args[1]))
 	if err != nil {
 		fmt.Printf("Error executing program %s\n", err)
 	}
