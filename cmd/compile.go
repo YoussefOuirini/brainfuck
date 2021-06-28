@@ -19,23 +19,34 @@ const (
 )
 
 func CompileBf(input string) (program []Instruction, err error) {
-	var programCounter, jumpCounter uint16 = 0, 0
+	var programCounter, jumpProgramCounter uint16 = 0, 0
 	jumpStack := make([]uint16, 0)
 	for _, char := range input {
-		instruction := compileChar(char, programCounter, jumpCounter, jumpStack, program)
+		instruction := compileChar(char, programCounter, jumpProgramCounter, jumpStack, program)
 		programCounter++
+
+		if instruction == nil {
+			programCounter--
+		}
+
+		if instruction.operator == jumpForward {
+			jumpStack = append(jumpStack, programCounter)
+		}
+
 		if instruction.operator == jumpBackward {
 			if len(jumpStack) == 0 {
 				return nil, errors.New("compilation error due to jumpStack being 0")
 			}
-			jumpStack = append(jumpStack, programCounter)
-			jumpCounter = jumpStack[len(jumpStack)-1]
+
+			jumpProgramCounter = jumpStack[len(jumpStack)-1]
 			jumpStack = jumpStack[:len(jumpStack)-1]
-			program = append(program, Instruction{jumpBackward, jumpCounter})
-			program[jumpCounter].operand = programCounter
+			program = append(program, Instruction{jumpBackward, jumpProgramCounter})
+			program[jumpProgramCounter].operand = programCounter
 		}
 
 		program = append(program, *instruction)
+
+		programCounter++
 	}
 	if len(jumpStack) != 0 {
 		return nil, errors.New("Compilation error.")
@@ -43,7 +54,7 @@ func CompileBf(input string) (program []Instruction, err error) {
 	return
 }
 
-func compileChar(char rune, programCounter, jumpCounter uint16, jumpStack []uint16, program []Instruction) *Instruction {
+func compileChar(char rune, programCounter, jumpProgramCounter uint16, jumpStack []uint16, program []Instruction) *Instruction {
 	var operator uint16
 	switch char {
 	case '>':
@@ -62,16 +73,13 @@ func compileChar(char rune, programCounter, jumpCounter uint16, jumpStack []uint
 		operator = jumpForward
 	case ']':
 		operator = jumpBackward
-		if len(jumpStack) == 0 {
-			return nil
-		}
 		// jumpStack = append(jumpStack, programCounter)
 		// jumpCounter = jumpStack[len(jumpStack)-1]
 		// jumpStack = jumpStack[:len(jumpStack)-1]
 		// program = append(program, Instruction{jumpBackward, jumpCounter})
 		// program[jumpCounter].operand = programCounter
 	default:
-		programCounter--
+		return nil
 	}
 
 	return &Instruction{operator, 0}
