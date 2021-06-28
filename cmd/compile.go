@@ -61,7 +61,7 @@ func CompileBf(input string) ([]Instruction, error) {
 		compileProgram(Char(char), counter)
 	}
 	if len(counter.jumpStack) != 0 {
-		return nil, errors.New("Compilation error.")
+		return nil, errors.New("compilation error: jumpStack is not 0")
 	}
 	return counter.program, nil
 }
@@ -81,7 +81,7 @@ func compileProgram(char Char, counter *Counter) error {
 
 	if *operation == jumpBackward {
 		if len(counter.jumpStack) == 0 {
-			return errors.New("Compilation error.")
+			return errors.New("compilation error: jumpStack is 0")
 		}
 		counter.jumpPointer = counter.jumpStack[len(counter.jumpStack)-1]
 		counter.jumpStack = counter.jumpStack[:len(counter.jumpStack)-1]
