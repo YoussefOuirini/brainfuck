@@ -28,7 +28,7 @@ type Counter struct {
 
 type Char rune
 
-func (c Char) GetOperation() *uint16 {
+func (c Char) GetOperation() uint16 {
 	var operation uint16
 
 	switch c {
@@ -52,7 +52,7 @@ func (c Char) GetOperation() *uint16 {
 		operation = Unknown
 	}
 
-	return &operation
+	return operation
 }
 
 type Instruction struct {
