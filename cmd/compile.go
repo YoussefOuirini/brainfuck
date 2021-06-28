@@ -40,34 +40,56 @@ func CompileBf(input string) ([]Instruction, error) {
 }
 
 func compileProgram(char rune, counter *Counter) error {
-	switch char {
-	case '>':
-		counter.program = append(counter.program, Instruction{increasePointer, 0})
-	case '<':
-		counter.program = append(counter.program, Instruction{decreasePointer, 0})
-	case '+':
-		counter.program = append(counter.program, Instruction{increaseValue, 0})
-	case '-':
-		counter.program = append(counter.program, Instruction{decreaseValue, 0})
-	case '.':
-		counter.program = append(counter.program, Instruction{out, 0})
-	case ',':
-		counter.program = append(counter.program, Instruction{in, 0})
-	case '[':
-		counter.program = append(counter.program, Instruction{jumpForward, 0})
+	operation := getOperation(char)
+
+	var operand uint16
+
+	if operation == nil {
+		counter.pointer--
+	}
+
+	if *operation == jumpForward {
 		counter.jumpStack = append(counter.jumpStack, counter.pointer)
-	case ']':
+	}
+
+	if *operation == jumpBackward {
 		if len(counter.jumpStack) == 0 {
 			return errors.New("Compilation error.")
 		}
 		counter.jumpPointer = counter.jumpStack[len(counter.jumpStack)-1]
 		counter.jumpStack = counter.jumpStack[:len(counter.jumpStack)-1]
-		counter.program = append(counter.program, Instruction{jumpBackward, counter.jumpPointer})
 		counter.program[counter.jumpPointer].operand = counter.pointer
-	default:
-		counter.pointer--
+		operand = counter.jumpPointer
 	}
+
+	counter.program = append(counter.program, Instruction{*operation, operand})
+
 	counter.pointer++
 
 	return nil
+}
+
+func getOperation(char rune) *uint16 {
+	var operation uint16
+
+	switch char {
+	case '>':
+		operation = increasePointer
+	case '<':
+		operation = decreasePointer
+	case '+':
+		operation = increaseValue
+	case '-':
+		operation = decreaseValue
+	case '.':
+		operation = out
+	case ',':
+		operation = in
+	case '[':
+		operation = jumpForward
+	case ']':
+		operation = jumpBackward
+	}
+
+	return &operation
 }
