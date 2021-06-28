@@ -10,9 +10,10 @@ type Instruction struct {
 }
 
 type Counter struct {
-	program uint16
-	jump    uint16
-	stack   []uint16
+	pointer     uint16
+	jumpPointer uint16
+	jumpStack   []uint16
+	program     []Instruction
 }
 
 const (
@@ -26,76 +27,47 @@ const (
 	jumpBackward
 )
 
-func CompileBf(input string) (program []Instruction, err error) {
-	var counter Counter
-	counter.stack = make([]uint16, 0)
+func CompileBf(input string) ([]Instruction, error) {
+	counter := &Counter{}
+	counter.jumpStack = make([]uint16, 0)
 	for _, char := range input {
-		instruction, err := compileProgram(&counter, char)
-		if err != nil {
-			return nil, err
-		}
-
-		if instruction != nil {
-			program = append(program, *instruction)
-		}
-
-		if instruction.operator == jumpBackward {
-			program[counter.jump].operand = counter.jump
-		}
+		compileProgram(counter, char)
 	}
-	if len(counter.stack) != 0 {
+	if len(counter.jumpStack) != 0 {
 		return nil, errors.New("Compilation error.")
 	}
-	return
+	return counter.program, nil
 }
 
-func compileProgram(counter *Counter, char rune) (*Instruction, error) {
-	instruction := compileChar(char)
-	counter.program++
-
-	if instruction == nil {
-		counter.jump--
-	}
-
-	if instruction.operator == jumpForward {
-		counter.stack = append(counter.stack, counter.program)
-	}
-
-	if instruction.operator == jumpBackward {
-		if len(counter.stack) == 0 {
-			return nil, errors.New("compilation error due to jumpStack being 0")
-		}
-
-		counter.jump = counter.stack[len(counter.stack)-1]
-		counter.stack = counter.stack[:len(counter.stack)-1]
-		instruction.operand = counter.jump
-	}
-
-	return instruction, nil
-}
-
-func compileChar(char rune) *Instruction {
-	var operator uint16
+func compileProgram(counter *Counter, char rune) error {
 	switch char {
 	case '>':
-		operator = increasePointer
+		counter.program = append(counter.program, Instruction{increasePointer, 0})
 	case '<':
-		operator = decreasePointer
+		counter.program = append(counter.program, Instruction{decreasePointer, 0})
 	case '+':
-		operator = increaseValue
+		counter.program = append(counter.program, Instruction{increaseValue, 0})
 	case '-':
-		operator = decreaseValue
+		counter.program = append(counter.program, Instruction{decreaseValue, 0})
 	case '.':
-		operator = out
+		counter.program = append(counter.program, Instruction{out, 0})
 	case ',':
-		operator = in
+		counter.program = append(counter.program, Instruction{in, 0})
 	case '[':
-		operator = jumpForward
+		counter.program = append(counter.program, Instruction{jumpForward, 0})
+		counter.jumpStack = append(counter.jumpStack, counter.pointer)
 	case ']':
-		operator = jumpBackward
+		if len(counter.jumpStack) == 0 {
+			return errors.New("Compilation error.")
+		}
+		counter.jumpPointer = counter.jumpStack[len(counter.jumpStack)-1]
+		counter.jumpStack = counter.jumpStack[:len(counter.jumpStack)-1]
+		counter.program = append(counter.program, Instruction{jumpBackward, counter.jumpPointer})
+		counter.program[counter.jumpPointer].operand = counter.pointer
 	default:
-		return nil
+		counter.pointer--
 	}
+	counter.pointer++
 
-	return &Instruction{operator, 0}
+	return nil
 }
