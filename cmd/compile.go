@@ -52,10 +52,8 @@ func compileProgram(programCounter, jumpProgramCounter uint16, char rune, jumpSt
 
 		jumpProgramCounter = jumpStack[len(jumpStack)-1]
 		jumpStack = jumpStack[:len(jumpStack)-1]
-		program = append(program, Instruction{jumpBackward, jumpProgramCounter})
+		instruction.operand = jumpProgramCounter
 		program[jumpProgramCounter].operand = programCounter
-
-		return nil
 	}
 
 	program = append(program, *instruction)
