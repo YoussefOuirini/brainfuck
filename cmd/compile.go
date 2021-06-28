@@ -42,6 +42,8 @@ func CompileBf(input string) (program []Instruction, err error) {
 			jumpStack = jumpStack[:len(jumpStack)-1]
 			program = append(program, Instruction{jumpBackward, jumpProgramCounter})
 			program[jumpProgramCounter].operand = programCounter
+
+			continue
 		}
 
 		program = append(program, *instruction)
@@ -73,11 +75,6 @@ func compileChar(char rune, programCounter, jumpProgramCounter uint16, jumpStack
 		operator = jumpForward
 	case ']':
 		operator = jumpBackward
-		// jumpStack = append(jumpStack, programCounter)
-		// jumpCounter = jumpStack[len(jumpStack)-1]
-		// jumpStack = jumpStack[:len(jumpStack)-1]
-		// program = append(program, Instruction{jumpBackward, jumpCounter})
-		// program[jumpCounter].operand = programCounter
 	default:
 		return nil
 	}
