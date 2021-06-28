@@ -22,36 +22,45 @@ func CompileBf(input string) (program []Instruction, err error) {
 	var programCounter, jumpProgramCounter uint16 = 0, 0
 	jumpStack := make([]uint16, 0)
 	for _, char := range input {
-		instruction := compileChar(char)
-		programCounter++
-
-		if instruction == nil {
-			programCounter--
+		err = compileProgram(programCounter, jumpProgramCounter, char, jumpStack, program)
+		if err != nil {
+			return nil, err
 		}
-
-		if instruction.operator == jumpForward {
-			jumpStack = append(jumpStack, programCounter)
-		}
-
-		if instruction.operator == jumpBackward {
-			if len(jumpStack) == 0 {
-				return nil, errors.New("compilation error due to jumpStack being 0")
-			}
-
-			jumpProgramCounter = jumpStack[len(jumpStack)-1]
-			jumpStack = jumpStack[:len(jumpStack)-1]
-			program = append(program, Instruction{jumpBackward, jumpProgramCounter})
-			program[jumpProgramCounter].operand = programCounter
-
-			continue
-		}
-
-		program = append(program, *instruction)
 	}
 	if len(jumpStack) != 0 {
 		return nil, errors.New("Compilation error.")
 	}
 	return
+}
+
+func compileProgram(programCounter, jumpProgramCounter uint16, char rune, jumpStack []uint16, program []Instruction) error {
+	instruction := compileChar(char)
+	programCounter++
+
+	if instruction == nil {
+		programCounter--
+	}
+
+	if instruction.operator == jumpForward {
+		jumpStack = append(jumpStack, programCounter)
+	}
+
+	if instruction.operator == jumpBackward {
+		if len(jumpStack) == 0 {
+			return errors.New("compilation error due to jumpStack being 0")
+		}
+
+		jumpProgramCounter = jumpStack[len(jumpStack)-1]
+		jumpStack = jumpStack[:len(jumpStack)-1]
+		program = append(program, Instruction{jumpBackward, jumpProgramCounter})
+		program[jumpProgramCounter].operand = programCounter
+
+		return nil
+	}
+
+	program = append(program, *instruction)
+
+	return nil
 }
 
 func compileChar(char rune) *Instruction {
