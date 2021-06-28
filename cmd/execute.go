@@ -7,15 +7,19 @@ import (
 
 const dataSize int = 65535
 
-type DataPointer uint16
-
-type Data []int16
+func ExecuteBf(contents []byte) (string, error) {
+	program, err := CompileBf(string(contents))
+	if err != nil {
+		return "", err
+	}
+	return program.Execute(), nil
+}
 
 type Program []Instruction
 
 func (p Program) Execute() string {
-	data := make(Data, dataSize)
-	var dataPointer DataPointer = 0
+	data := make([]int16, dataSize)
+	var dataPointer uint16 = 0
 
 	var result []rune
 
@@ -52,12 +56,4 @@ func (p Program) Execute() string {
 	}
 
 	return string(result)
-}
-
-func ExecuteBf(contents []byte) (string, error) {
-	program, err := CompileBf(string(contents))
-	if err != nil {
-		return "", err
-	}
-	return program.Execute(), nil
 }
