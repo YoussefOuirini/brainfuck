@@ -22,7 +22,7 @@ func CompileBf(input string) (program []Instruction, err error) {
 	var programCounter, jumpProgramCounter uint16 = 0, 0
 	jumpStack := make([]uint16, 0)
 	for _, char := range input {
-		instruction := compileChar(char, programCounter, jumpProgramCounter, jumpStack, program)
+		instruction := compileChar(char)
 		programCounter++
 
 		if instruction == nil {
@@ -54,7 +54,7 @@ func CompileBf(input string) (program []Instruction, err error) {
 	return
 }
 
-func compileChar(char rune, programCounter, jumpProgramCounter uint16, jumpStack []uint16, program []Instruction) *Instruction {
+func compileChar(char rune) *Instruction {
 	var operator uint16
 	switch char {
 	case '>':
