@@ -94,7 +94,7 @@ func (p Program) Execute() string {
 				programCounter = int(instruction.Operand)
 			}
 		default:
-			panic("Unknown operator.")
+			panic("unknown operator")
 		}
 	}
 

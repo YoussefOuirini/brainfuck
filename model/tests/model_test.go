@@ -56,3 +56,19 @@ func Test_GetOperation(t *testing.T) {
 		assert.Equal(t, uint16(model.JumpBackward), *operation)
 	})
 }
+
+func Test_Execute(t *testing.T) {
+	t.Run("panics when unknown operator", func(t *testing.T) {
+		testProgram := model.Program{
+			{
+				Operator: 100,
+			},
+		}
+
+		panickingProgram := func() {
+			testProgram.Execute()
+		}
+
+		assert.PanicsWithValue(t, "unknown operator", panickingProgram)
+	})
+}
