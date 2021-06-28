@@ -43,4 +43,20 @@ func Test_CompileProgram(t *testing.T) {
 		err := cmd.CompileProgram(testChar, testCounter)
 		assert.EqualError(t, err, "compilation error: jumpStack is 0")
 	})
+
+	t.Run("operation is JumpBackward", func(t *testing.T) {
+		testChar := model.Char(']')
+		testCounter := &model.Counter{
+			Pointer:     uint16(1),
+			JumpPointer: uint16(0),
+			JumpStack:   []uint16{1},
+			Program:     []model.Instruction{{Operand: 1}, {Operand: 1}},
+		}
+		err := cmd.CompileProgram(testChar, testCounter)
+		assert.NoError(t, err)
+		assert.Equal(t, uint16(1), testCounter.JumpPointer)
+		assert.Empty(t, testCounter.JumpStack)
+		assert.Equal(t, uint16(1), testCounter.Program[0].Operand)
+		assert.Equal(t, uint16(2), testCounter.Pointer)
+	})
 }
