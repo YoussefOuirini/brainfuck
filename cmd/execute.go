@@ -25,7 +25,10 @@ func ExecuteBf(program []Instruction) {
 		case out:
 			fmt.Printf("%c", data[dataPointer])
 		case in:
-			read_val, _ := reader.ReadByte()
+			read_val, err := reader.ReadByte()
+			if err != nil {
+				panic(err)
+			}
 			data[dataPointer] = int16(read_val)
 		case jumpForward:
 			if data[dataPointer] == 0 {
